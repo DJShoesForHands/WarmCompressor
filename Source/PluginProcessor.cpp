@@ -166,7 +166,8 @@ bool WarmCompressorAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* WarmCompressorAudioProcessor::createEditor()
 {
-    return new WarmCompressorAudioProcessorEditor (*this);
+    // return new WarmCompressorAudioProcessorEditor (*this);
+    return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
@@ -182,6 +183,46 @@ void WarmCompressorAudioProcessor::setStateInformation (const void* data, int si
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
 }
+
+juce::AudioProcessorValueTreeState::ParameterLayout
+    WarmCompressorAudioProcessor::createParameterLayout()
+{
+        juce::AudioProcessorValueTreeState::ParameterLayout layout;
+        //low cut freq range of 20Hz to 20kHz, default of 20Hz step size of 1Hz
+        layout.add(std::make_unique<juce::AudioParameterFloat>("LowCut Freq",
+                                                               "LowCut Freq",
+                                                               juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 20.f));
+        //high cut freq range of 20Hz to 20kHz, default of 20kHz step size of 1Hz
+        layout.add(std::make_unique<juce::AudioParameterFloat>("HighCut Freq",
+                                                               "HighCut Freq",
+                                                               juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 20000.f));
+        //peak freq range of 20Hz to 20kHz, default of 750Hz step size of 1Hz
+        layout.add(std::make_unique<juce::AudioParameterFloat>("Peak Freq",
+                                                               "Peak Freq",
+                                                               juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 750.f));
+        // gain with range of -24dB to 24dB, default value of 0 w/ step of 0.5dB
+        layout.add(std::make_unique<juce::AudioParameterFloat>("Peak Gain",
+                                                               "Peak Gain",
+                                                               juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f), 0.0f));
+        // q with range of 0.1 to 10, steps of 0.05 w/ default of 1
+        layout.add(std::make_unique<juce::AudioParameterFloat>("Peak Q Factor",
+                                                               "Peak Q Factor",
+                                                               juce::NormalisableRange<float>(0.1f, 10.f, 0.05f, 1.f), 1.f));
+        // create string array of 12, 24, 36, 48 db/Oct
+        juce::StringArray stringArray;
+        for( int i = 0; i < 4; ++i )
+        {
+            juce::String str;
+            str << (12 + i*12);
+            str << " db/Oct";
+            stringArray.add(str);
+        }
+        //add parameter choice for high/low cut slope in db per octave - defined by stringArray
+        layout.add(std::make_unique<juce::AudioParameterChoice>("LowCut Slope", "LowCut Slope", stringArray, 0));
+        layout.add(std::make_unique<juce::AudioParameterChoice>("HighCut Slope", "HighCut Slope", stringArray, 0));
+        
+        return layout;
+};
 
 //==============================================================================
 // This creates new instances of the plugin..
