@@ -100,49 +100,41 @@ private:
     //static function declaration for updating peak filter coeffs
     static void updateCoefficients(Coefficients& old, const Coefficients& replacements);
     
-    template<typename EQChainType, typename CoefficientType>
-    
-    void updateCutFilter(EQChainType& leftLowCut,
-                         const CoefficientType& cutCoeffs,
-                         const Slope& lowCutSlope)
+    template<int Index, typename EQChainType, typename CoefficientType>
+    void update(EQChainType& eqChain, const CoefficientType& cutCoeffs)\
     {
-        leftLowCut.template setBypassed<0>(true);
-        leftLowCut.template setBypassed<1>(true);
-        leftLowCut.template setBypassed<2>(true);
-        leftLowCut.template setBypassed<3>(true);
+        updateCoefficients(eqChain.template get<Index>().coefficients, cutCoeffs[Index]);
+        eqChain.template setBypassed<Index>(false);
+    }
+    
+    template<typename EQChainType, typename CoefficientType>
+    void updateCutFilter(EQChainType& cutChain,
+                         const CoefficientType& cutCoeffs,
+                         const Slope& slope)
+    {
+        cutChain.template setBypassed<0>(true);
+        cutChain.template setBypassed<1>(true);
+        cutChain.template setBypassed<2>(true);
+        cutChain.template setBypassed<3>(true);
         
-        //switch(eqChainSettings.lowCutSlope)
-        switch(lowCutSlope)
+        switch(slope)
         {
-            //remeber to dereference pointers to objects
-            case Slope_12:
-                *leftLowCut.template get<0>().coefficients = *cutCoeffs[0];
-                leftLowCut.template setBypassed<0>(false);
-                break;
-            case Slope_24:
-                *leftLowCut.template get<0>().coefficients = *cutCoeffs[0];
-                leftLowCut.template setBypassed<0>(false);
-                *leftLowCut.template get<1>().coefficients = *cutCoeffs[1];
-                leftLowCut.template setBypassed<1>(false);
-                break;
-            case Slope_36:
-                *leftLowCut.template get<0>().coefficients = *cutCoeffs[0];
-                leftLowCut.template setBypassed<0>(false);
-                *leftLowCut.template get<1>().coefficients = *cutCoeffs[1];
-                leftLowCut.template setBypassed<1>(false);
-                *leftLowCut.template get<2>().coefficients = *cutCoeffs[2];
-                leftLowCut.template setBypassed<2>(false);
-                break;
             case Slope_48:
-                *leftLowCut.template get<0>().coefficients = *cutCoeffs[0];
-                leftLowCut.template setBypassed<0>(false);
-                *leftLowCut.template get<1>().coefficients = *cutCoeffs[1];
-                leftLowCut.template setBypassed<1>(false);
-                *leftLowCut.template get<2>().coefficients = *cutCoeffs[2];
-                leftLowCut.template setBypassed<2>(false);
-                *leftLowCut.template get<3>().coefficients = *cutCoeffs[3];
-                leftLowCut.template setBypassed<3>(false);
-                break;
+            {
+                update<3>(cutChain, cutCoeffs);
+            }
+            case Slope_36:
+            {
+                update<2>(cutChain, cutCoeffs);
+            }
+            case Slope_24:
+            {
+                update<1>(cutChain, cutCoeffs);
+            }
+            case Slope_12:
+            {
+                update<0>(cutChain, cutCoeffs);
+            }
         }
     }
     //==============================================================================
