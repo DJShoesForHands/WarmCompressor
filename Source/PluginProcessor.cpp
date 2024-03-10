@@ -191,12 +191,19 @@ void WarmCompressorAudioProcessor::getStateInformation (juce::MemoryBlock& destD
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+    juce::MemoryOutputStream memOutputStream(destData, true);
+    apvts.state.writeToStream(memOutputStream);
 }
 
 void WarmCompressorAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+    auto valTree = juce::ValueTree::readFromData(data, sizeInBytes);
+    if(valTree.isValid())
+    {
+        apvts.replaceState(valTree);
+    }
 }
 //load parameters from GUI into filters
 EQChainSettings getEQChainSettings(juce::AudioProcessorValueTreeState& apvts)

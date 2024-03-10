@@ -65,10 +65,10 @@
           uiLastY_Normal="465" uiopen_Normal="1">
     <PLUGIN name="WarmCompressor" format="VST3" category="Fx" manufacturer="yourcompany"
             version="1.0.0" file="/Users/gregbright/Library/Audio/Plug-Ins/VST3/WarmCompressor.vst3"
-            uniqueId="f9a1e328" isInstrument="0" fileTime="18e25cae82b" infoUpdateTime="18e25d73ce4"
+            uniqueId="f9a1e328" isInstrument="0" fileTime="18e25cae82b" infoUpdateTime="18e29e62f95"
             numInputs="2" numOutputs="2" isShell="0" hasARAExtension="0"
             uid="acf85474"/>
-    <STATE>191.VMjLgXK....O+fWarAhckI2bo8la8HRLt.iHfTlai8FYo41Y8HRUTYTK3HxO9.BOVMEUy.Ea0cVZtMEcgQWY9vSRC8Vav8lak4Fc9XCLt3hKt3hKt3hKt3hYRUUSTEETIckVwTjQisVTTgkdEYjKAQjYPQSPWgUdMcjKAQjct3hdA4hKt3hKt3hKtnTUv.UQAslXuk0UXoWUFE0YQcEV77RRC8Vav8lak4Fc9vyKVMEUy.Ea0cVZtMEcgQWY9..</STATE>
+    <STATE>836.VMjLgry....O+fWarAhckI2bo8la8HRLt.iHfTlai8FYo41Y8HRUTYTK3HxO9.BOVMEUy.Ea0cVZtMEcgQWY9vSRC8Vav8lak4Fc9TCMy3BTEwlXmAiUYoWUrIVdA4hKAImKTETRUAUSAAkKBolQY4BQtHTQDQzX5UTLXEWPlM1Y2Y0XqEDTtjDTt3hKt3hKt3BTR4RPtPUPIUETMEDTtHjZFkkKDY1PEYFUZ01Yw.ELQcDRFkzUYcWPlM1Y2Y0XqEDTtjDTt3hKt3hKtX1L54RPtPUPIUETMEDTtHjZFkkKDY2PEYFUZ01Yw.ELQcDRScWLgYWUF4RLEYTXvTkQtDjZtDjKt3hKt3hKt3hKt3BTEoFUAACQtDDRPokZAAkKMQkKSU2Xx.ELQcDRFkzUYcWPlM1Y2Y0XqEDTtjDTt3hKt3hKt.UVr4RPtPUPIUETMEDTtHjZFkkKDY1PEYmdgISSTMldAgGUxgiQhsVPlM1Y2Y0XqEDTtjDTt3hKt3hKt3hKt3hKtPUPIUETMEDTtHjZFkkKDYmPE4RUYc1bFgjQIcUV2EjYic1cVM1ZAAkKIAkKt3hKt3hKtHyYtDjKTETRUAUSAAkKBolQY4BQ1ITQtTUVmMmQHcTQVoEcAY1XmcmUisVPP4RRP4hKt3hKt3hKt3hKt3BUAkTUP0TPP4hPpYTVtPjcCUjKUk0YyYDRQEDZQcVSFMVcIcjKwTjQgASUF4RPp4RPt3hKt3hKt3hcqLjKPUjZTEDLD4RPHAkVpEDTtbDUlQ0YQckV0EjYic1cVM1ZAAkKIAkKt3hKt3hKtXFRtDjKTETRUAUSAAkKBolQY4BQPITQHUUVxUkUXkWUF4RLEYTXvTkQtDjZtDjKt3hKt3hKPUWPD4BTEoFUAACQtDDRPokZAAkKKQkKU4VRWkUdmESXxEkQtDSQFEFLUYjKAolKA4hKt3hKt3hKt3hKt3hKt3hKt3hKt3hYRUUSTEETIckVwTjQisVTTgkdEYjKAQjYPQSPWgUdMcjKAQjct3hdA4hKt3hKt3hKtnTUv.UQAslXuk0UXoWUFE0YQcEV77RRC8Vav8lak4Fc9vyKVMEUy.Ea0cVZtMEcgQWY9..</STATE>
     <LAYOUT>
       <INPUTS>
         <BUS index="0" layout="L R"/>
@@ -82,7 +82,7 @@
           uiLastY_Normal="81" uiopen_Normal="1">
     <PLUGIN name="AUAudioFilePlayer" format="AudioUnit" category="Generator"
             manufacturer="Apple" version="1.6.0" file="AudioUnit:Generators/augn,afpl,appl"
-            uniqueId="6163676e" isInstrument="0" fileTime="0" infoUpdateTime="18e25d73ce5"
+            uniqueId="6163676e" isInstrument="0" fileTime="0" infoUpdateTime="18e29e62f95"
             numInputs="0" numOutputs="2" isShell="0" hasARAExtension="0"
             uid="6163676e"/>
     <STATE>616.hAGaoMGcv.C1AHv.DTfAGfPBJr.Gc3wGgvUag4VclE1XzUmbkIGUjEFcg8EDarVPUAkbkMWYzAUYxMWZyQWYtQ2TzEFcksTY4c0b0IFc4AWYWYWYxMWZu4FUzkGbk8EDOXVZrUVKxUlYkIWYtMVYyQkag0VYRDFbvwFPgxvzM3vCPDQFXYTZrUlSg0VYWIUYmk1atMmWIM2TkwVYiQWYjYTZrU1WPn2KUMWYxM2KmIWYmIlbocFZz8RS0MWZi8RS0MWZi8RSkQVZg4BauMVXrkldkQ1KU41Zt81ctARPxQWZyQ2KU41Zt81ctARPrIVcs8RS0MWZi8RUtslaucmafDjbzk1bz8RUtslaucmafDDahUWauzTXyQWYxARLtbWX1EpDTOAEUXwEXjgFdIUYmk1atQzakMGSu8FbZIUYmk1atQTXzE1WP.QRyMUYrU1XzUFYRU1Yo8laZIUYmk1at4TXsUFBOAAb............Du01P+G......7O.....fLsR...X...PUnZ...F....wasMz+A...P7VaC8e..P...............................................................P3TgC......jfVNU1cfHUYmk1atkfDgYFbrAA.RDVcm4Vzf.gUFkFakARLXUkazkFcrUFY.f..Y.fI.rB.IAPT.jE.dA.b.TG.5Avd.zG.DBPi.TI.jFPHALR.rDvNAXT.YE.YATV.XGP1APd.kGf5Avd.wG.8ArO.......f.A.........fH..................f.D.</STATE>
