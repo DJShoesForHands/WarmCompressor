@@ -103,21 +103,8 @@ void WarmCompressorAudioProcessor::prepareToPlay (double sampleRate, int samples
     
     leftEQ.prepare(spec);
     rightEQ.prepare(spec);
-    //create filter coeffs from user specified EQ settings
-    auto eqChainSettings = getEQChainSettings(apvts);
     
-    updatePeakFilter(eqChainSettings);
-    
-    // create coeffs for high/low cut. Order of filter is expressed as (slope choice # + 1) * 2
-    // i.e. slope choice of 0 = 12db/Octave = 1st order, choice of 1 = 24db/Octave = 2nd order, etc.
-    auto cutCoeffs = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(eqChainSettings.lowCutFreq,
-                                                                                                 sampleRate,
-                                                                                                 (eqChainSettings.lowCutSlope + 1) * 2);
-    auto& leftLowCut = leftEQ.get<EQPositions::LowCut>();
-    updateCutFilter(leftLowCut, cutCoeffs, eqChainSettings.lowCutSlope);
-
-    auto& rightLowCut = rightEQ.get<EQPositions::LowCut>();
-    updateCutFilter(rightLowCut, cutCoeffs, eqChainSettings.lowCutSlope);
+    updateFilters();
 
 }
 
@@ -169,21 +156,7 @@ void WarmCompressorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffe
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
-    
-    //Update filter coeffs before processing data
-    auto eqChainSettings = getEQChainSettings(apvts);
-    
-    updatePeakFilter(eqChainSettings);
-
-    //copy of left/right low cut from prepareToPlay block
-    auto cutCoeffs = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(eqChainSettings.lowCutFreq,
-                                                                                                 getSampleRate(),
-                                                                                                 (eqChainSettings.lowCutSlope + 1) * 2);
-    auto& leftLowCut = leftEQ.get<EQPositions::LowCut>();
-    updateCutFilter(leftLowCut, cutCoeffs, eqChainSettings.lowCutSlope);
-    
-    auto& rightLowCut = rightEQ.get<EQPositions::LowCut>();
-    updateCutFilter(rightLowCut, cutCoeffs, eqChainSettings.lowCutSlope);
+    updateFilters();
     
     // create audio block representing individual channel
     // and context wrapper around each block
@@ -257,6 +230,38 @@ void WarmCompressorAudioProcessor::updateCoefficients(Coefficients &old, const C
 {
     //reference counted objects allocated on heap - dereference to get underlying object
     *old = *replacements;
+}
+
+void WarmCompressorAudioProcessor::updateLowCutFilters(const EQChainSettings &eqChainSettings)
+{
+    auto lowCutCoeffs = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(eqChainSettings.lowCutFreq,
+                                                                                                 getSampleRate(),
+                                                                                                 (eqChainSettings.lowCutSlope + 1) * 2);
+    auto& leftLowCut = leftEQ.get<EQPositions::LowCut>();
+    auto& rightLowCut = rightEQ.get<EQPositions::LowCut>();
+    
+    updateCutFilter(rightLowCut, lowCutCoeffs, eqChainSettings.lowCutSlope);
+    updateCutFilter(leftLowCut, lowCutCoeffs, eqChainSettings.lowCutSlope);
+}
+
+void WarmCompressorAudioProcessor::updateHighCutFilters(const EQChainSettings &eqChainSettings)
+{
+    auto highCutCoeffs = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(eqChainSettings.highCutFreq,
+                                                                                                 getSampleRate(),
+                                                                                                 (eqChainSettings.highCutSlope + 1) * 2);
+    auto& leftHighCut = leftEQ.get<EQPositions::HighCut>();
+    auto& rightHighCut = rightEQ.get<EQPositions::HighCut>();
+    
+    updateCutFilter(rightHighCut, highCutCoeffs, eqChainSettings.highCutSlope);
+    updateCutFilter(leftHighCut, highCutCoeffs, eqChainSettings.highCutSlope);
+}
+
+void WarmCompressorAudioProcessor::updateFilters()
+{
+    auto eqChainSettings = getEQChainSettings(apvts);
+    updatePeakFilter(eqChainSettings);
+    updateLowCutFilters(eqChainSettings);
+    updateHighCutFilters(eqChainSettings);
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout

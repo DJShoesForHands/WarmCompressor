@@ -137,6 +137,10 @@ private:
             }
         }
     }
+    
+    void updateLowCutFilters(const EQChainSettings& eqChainSettings);
+    void updateHighCutFilters(const EQChainSettings& eqChainSettings);
+    void updateFilters();
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WarmCompressorAudioProcessor)
 };
