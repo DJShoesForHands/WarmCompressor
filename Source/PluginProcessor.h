@@ -10,6 +10,16 @@
 
 #include <JuceHeader.h>
 
+//data struct of EQ settings
+//extract EQ params out of AudioProcessorValueTreeState (where the sliders are)
+struct EQChainSettings
+{
+    float peakFreq {0}, peakGainInDecibels{0}, peakQ {1.f};
+    float lowCutFreq {0}, highCutFreq {0};
+    int lowCutSlope {0}, highCutSlope {0};
+};
+EQChainSettings getEQChainSettings(juce::AudioProcessorValueTreeState& apvts);
+
 //==============================================================================
 /**
 */
@@ -60,13 +70,25 @@ public:
 private:
     //setup filter type alias
     using Filter = juce::dsp::IIR::Filter<float>;
+    
     // Chain 4 filters - each JUCE filter is configured with 12dB/Oct slope
     // need 12dB/oct * 4 filters to get up to max 48db/Oct slope for EQ
     using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
+    
     using FilterChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>;
-    FilterChain monoEQ;
+    
+    //for mono usage
+    //FilterChain monoEQ;
     //for stereo usage
-    //FilterChain leftEQ, rightEQ;
+    FilterChain leftEQ, rightEQ;
+    
+    enum EQPositions
+    {
+        LowCut,
+        Peak,
+        HighCut
+    };
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WarmCompressorAudioProcessor)
 };

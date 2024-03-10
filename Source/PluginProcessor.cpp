@@ -101,10 +101,21 @@ void WarmCompressorAudioProcessor::prepareToPlay (double sampleRate, int samples
     spec.numChannels = 1;
     spec.sampleRate = sampleRate;
     
-    monoEQ.prepare(spec);
+    //for mono usage
+    //monoEQ.prepare(spec);
     //for stereo usage
-    //leftEQ.prepare(spec);
-    //rightEQ.prepar(spec);
+    leftEQ.prepare(spec);
+    rightEQ.prepare(spec);
+    //create filter coeffs from user specified EQ settings
+    auto eqChainSettings = getEQChainSettings(apvts);
+    //have to convert gain from dB to flat gain value for juce IIR class
+    auto peakCoeffs = juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate,
+                                                                          eqChainSettings.peakFreq,
+                                                                          eqChainSettings.peakQ,
+                                                                          juce::Decibels::decibelsToGain(eqChainSettings.peakGainInDecibels));
+    //load and de-reference peak filter coeffs
+    *leftEQ.get<EQPositions::Peak>().coefficients = *peakCoeffs;
+    *rightEQ.get<EQPositions::Peak>().coefficients = *peakCoeffs;
 }
 
 void WarmCompressorAudioProcessor::releaseResources()
@@ -143,6 +154,7 @@ void WarmCompressorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffe
 {
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
+    
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
     // In case we have more outputs than inputs, this code clears any output
@@ -153,23 +165,38 @@ void WarmCompressorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffe
     // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
+    
+    
+    //Update filter coeffs before processing data
+    auto eqChainSettings = getEQChainSettings(apvts);
+    
+    auto peakCoeffs = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(),
+                                                                          eqChainSettings.peakFreq,
+                                                                          eqChainSettings.peakQ,
+                                                                          juce::Decibels::decibelsToGain(eqChainSettings.peakGainInDecibels));
+    //for mono usage
+    // *monoEQ.get<EQPositions::Peak>().coefficients = *peakCoeffs;
+    *leftEQ.get<EQPositions::Peak>().coefficients = *peakCoeffs;
+    *rightEQ.get<EQPositions::Peak>().coefficients = *peakCoeffs;
 
     // create audio block representing individual channel
     // and context wrapper around each block
     // pass context to EQ filter chain
     juce::dsp::AudioBlock<float> block(buffer);
+    //for mono usage
+    /*
     auto monoBlock = block.getSingleChannelBlock(0);
     juce::dsp::ProcessContextReplacing<float> monoContext(monoBlock);
     monoEQ.process(monoContext);
-    /*
-    for stereo usage
+    */
+    
+    //for stereo usage
     auto leftBlock = block.getSingleChannelBlock(0);
     auto rightBlock = block.getSingleChannelBlock(1);
     juce::dsp::ProcessContextReplacing<float> leftContext(leftBlock);
     juce::dsp::ProcessContextReplacing<float> rightContext(rightBlock);
     leftEQ.process(leftContext);
     rightEQ.process(rightContext);
-    */
 }
 
 //==============================================================================
@@ -197,6 +224,20 @@ void WarmCompressorAudioProcessor::setStateInformation (const void* data, int si
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
 }
+//load parameters from GUI into filters
+EQChainSettings getEQChainSettings(juce::AudioProcessorValueTreeState& apvts)
+{
+    EQChainSettings settings;
+    //apvts.getParameter("LowCut Freq")->getValue(); do NOT use this method, returns normalized value
+    settings.lowCutFreq = apvts.getRawParameterValue("LowCut Freq")->load();
+    settings.highCutFreq = apvts.getRawParameterValue("HighCut Freq")->load();
+    settings.peakFreq = apvts.getRawParameterValue("Peak Freq")->load();
+    settings.peakGainInDecibels = apvts.getRawParameterValue("Peak Gain")->load();
+    settings.peakQ = apvts.getRawParameterValue("Peak Q Factor")->load();
+    settings.lowCutSlope = apvts.getRawParameterValue("LowCut Slope")->load();
+    settings.highCutSlope= apvts.getRawParameterValue("HighCut Slope")->load();
+    return settings;
+}
 
 juce::AudioProcessorValueTreeState::ParameterLayout
     WarmCompressorAudioProcessor::createParameterLayout()
@@ -205,15 +246,15 @@ juce::AudioProcessorValueTreeState::ParameterLayout
         //low cut freq range of 20Hz to 20kHz, default of 20Hz step size of 1Hz
         layout.add(std::make_unique<juce::AudioParameterFloat>("LowCut Freq",
                                                                "LowCut Freq",
-                                                               juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 20.f));
+                                                               juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.25f), 20.f));
         //high cut freq range of 20Hz to 20kHz, default of 20kHz step size of 1Hz
         layout.add(std::make_unique<juce::AudioParameterFloat>("HighCut Freq",
                                                                "HighCut Freq",
-                                                               juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 20000.f));
+                                                               juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.25f), 20000.f));
         //peak freq range of 20Hz to 20kHz, default of 750Hz step size of 1Hz
         layout.add(std::make_unique<juce::AudioParameterFloat>("Peak Freq",
                                                                "Peak Freq",
-                                                               juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 750.f));
+                                                               juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.25f), 750.f));
         // gain with range of -24dB to 24dB, default value of 0 w/ step of 0.5dB
         layout.add(std::make_unique<juce::AudioParameterFloat>("Peak Gain",
                                                                "Peak Gain",
