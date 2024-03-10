@@ -22,6 +22,14 @@ WarmCompressorAudioProcessor::WarmCompressorAudioProcessor()
                        )
 #endif
 {
+    attack = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter("Attack"));
+    jassert(attack != nullptr);
+    release = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter("Release"));
+    jassert(release != nullptr);
+    threshold = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter("Threshold"));
+    jassert(threshold != nullptr);
+    ratio = dynamic_cast<juce::AudioParameterChoice*>(apvts.getParameter("Ratio"));
+    jassert(ratio != nullptr);
 }
 
 WarmCompressorAudioProcessor::~WarmCompressorAudioProcessor()
@@ -103,6 +111,7 @@ void WarmCompressorAudioProcessor::prepareToPlay (double sampleRate, int samples
     
     leftEQ.prepare(spec);
     rightEQ.prepare(spec);
+    compressor.prepare(spec);
     
     updateFilters();
 
@@ -157,6 +166,10 @@ void WarmCompressorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffe
         buffer.clear (i, 0, buffer.getNumSamples());
     
     updateFilters();
+    compressor.setAttack(attack->get());
+    compressor.setRelease(release->get());
+    compressor.setThreshold(threshold->get());
+    compressor.setRatio(ratio->getCurrentChoiceName().getFloatValue());
     
     // create audio block representing individual channel
     // and context wrapper around each block
@@ -169,6 +182,8 @@ void WarmCompressorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffe
     juce::dsp::ProcessContextReplacing<float> rightContext(rightBlock);
     leftEQ.process(leftContext);
     rightEQ.process(rightContext);
+    compressor.process(leftContext);
+    compressor.process(rightContext);
     
     
 }
