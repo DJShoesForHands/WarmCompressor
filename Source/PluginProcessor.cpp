@@ -267,19 +267,25 @@ void WarmCompressorAudioProcessor::updateFilters()
 juce::AudioProcessorValueTreeState::ParameterLayout
     WarmCompressorAudioProcessor::createParameterLayout()
 {
+        //freq related params share same 20-20kHz range
+        auto freqRange = juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.25f);
+        
         juce::AudioProcessorValueTreeState::ParameterLayout layout;
         //low cut freq range of 20Hz to 20kHz, default of 20Hz step size of 1Hz
         layout.add(std::make_unique<juce::AudioParameterFloat>("LowCut Freq",
                                                                "LowCut Freq",
-                                                               juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.25f), 20.f));
+                                                               freqRange,
+                                                               20.f));
         //high cut freq range of 20Hz to 20kHz, default of 20kHz step size of 1Hz
         layout.add(std::make_unique<juce::AudioParameterFloat>("HighCut Freq",
                                                                "HighCut Freq",
-                                                               juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.25f), 20000.f));
+                                                               freqRange,
+                                                               20000.f));
         //peak freq range of 20Hz to 20kHz, default of 750Hz step size of 1Hz
         layout.add(std::make_unique<juce::AudioParameterFloat>("Peak Freq",
                                                                "Peak Freq",
-                                                               juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.25f), 750.f));
+                                                               freqRange,
+                                                               750.f));
         // gain with range of -24dB to 24dB, default value of 0 w/ step of 0.5dB
         layout.add(std::make_unique<juce::AudioParameterFloat>("Peak Gain",
                                                                "Peak Gain",
@@ -300,6 +306,33 @@ juce::AudioProcessorValueTreeState::ParameterLayout
         //add parameter choice for high/low cut slope in db per octave - defined by stringArray
         layout.add(std::make_unique<juce::AudioParameterChoice>("LowCut Slope", "LowCut Slope", stringArray, 0));
         layout.add(std::make_unique<juce::AudioParameterChoice>("HighCut Slope", "HighCut Slope", stringArray, 0));
+        
+        //Compressor Params
+        //threshold range in decibels
+        layout.add(std::make_unique<juce::AudioParameterFloat>("Threshold",
+                                                               "Threshold",
+                                                               juce::NormalisableRange<float>(-60, 12, 1, 1),
+                                                               0.0f));
+        //attack and release settings share same range in ms
+        auto attackReleaseRange = juce::NormalisableRange<float>(5, 500, 1, 1);
+        
+        layout.add(std::make_unique<juce::AudioParameterFloat>("Attack",
+                                                               "Attack",
+                                                               attackReleaseRange,
+                                                               50));
+        layout.add(std::make_unique<juce::AudioParameterFloat>("Release",
+                                                               "Release",
+                                                               attackReleaseRange,
+                                                               250));
+        //list of available ratios, linear increase of ratios until hitting 8, then various forms of "brick wall"
+        auto choices = std::vector<double>{1, 1.5, 2, 3, 4, 5, 6, 7, 8, 10, 15, 20, 50, 100};
+        juce::StringArray ratioStringArray;
+        for(auto choice : choices)
+        {
+            ratioStringArray.add(juce::String(choice, 1));
+        }
+        //set default value to 3dB
+        layout.add(std::make_unique<juce::AudioParameterChoice>("Ratio", "Ratio", ratioStringArray, 3));
         
         return layout;
 };
