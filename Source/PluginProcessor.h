@@ -82,7 +82,6 @@ private:
     // Chain 4 filters - each JUCE filter is configured with 12dB/Oct slope
     // need 12dB/oct * 4 filters to get up to max 48db/Oct slope for EQ
     using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
-    
     using FilterChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>;
     
     FilterChain leftEQ, rightEQ;
@@ -148,6 +147,11 @@ private:
     juce::AudioParameterFloat* release {nullptr};
     juce::AudioParameterFloat* threshold {nullptr};
     juce::AudioParameterChoice* ratio {nullptr};
+    
+    //Soft clipping
+    //Need to add upsampling/filtering to deal with aliasing
+    juce::dsp::WaveShaper<float> waveshaper {juce::dsp::FastMathApproximations::tanh};
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WarmCompressorAudioProcessor)
 };

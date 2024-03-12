@@ -112,9 +112,9 @@ void WarmCompressorAudioProcessor::prepareToPlay (double sampleRate, int samples
     leftEQ.prepare(spec);
     rightEQ.prepare(spec);
     compressor.prepare(spec);
+    waveshaper.prepare(spec);
     
     updateFilters();
-
 }
 
 void WarmCompressorAudioProcessor::releaseResources()
@@ -184,7 +184,8 @@ void WarmCompressorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffe
     rightEQ.process(rightContext);
     compressor.process(leftContext);
     compressor.process(rightContext);
-    
+    waveshaper.process(leftContext);
+    waveshaper.process(rightContext);
     
 }
 
